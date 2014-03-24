@@ -1,5 +1,7 @@
 {
     "dependencies": {
-        "harp": "0.11.x"
+        "harp": "0.11.x",
+        "socket.io": "latest",
+        "johnny-five": "latest"
     }
 }
