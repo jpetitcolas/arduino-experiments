@@ -6,18 +6,16 @@ var board = new five.Board();
 
 board.on("ready", function() {
 
-    led = new five.Led(13);
+    led = new five.Led.RGB([9, 10, 11]);
 
     io.sockets.on("connection", function(socket) {
         console.log("New connection: " + socket.id);
 
-        socket.on("led:on", function() {
-            led.on();
-        })
-
-        socket.on("led:off", function() {
-            led.off();
-        })
+        socket.on("changeColor", function(e) {
+            led.color(e.color);
+        });
     });
+
+    this.repl.inject({ led: led });
 
 });
