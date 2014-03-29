@@ -12,10 +12,9 @@ board.on("ready", function() {
         console.log("New connection: " + socket.id);
 
         socket.on("changeColor", function(e) {
-            led.color(e.color);
+            led.color(e.color)
         });
     });
 
     this.repl.inject({ led: led });
-
 });

@@ -12,39 +12,68 @@
 <body>
     <div class="container">
         <h1>RGB LED control panel</h1>
-        <div class="row">
-            <div class="col-md-6">
-                <h3>Choose a color</h3>
-                <div id="color-picker"></div>
-            </div>
-            <div class="col-md-6">
-                <h3>Instructions</h3>
-                <p>
-                    This control panel allows you to change the color of a RGB LED plugged on an Arduino. It uses
-                    <a href="#">Johnny Five</a> framework and <a href="#">Socket.io</a>.
-                </p>
-                <p>First step is to plug the RGB LED on your Arduino. Then, simply launch the server:</p>
-                <pre><code>node server.js</code></pre>
-                <p>Finally, change the emitted light color with the following color picker.</p>
-                <p>Source code is available on GitHub, and a full tutorial on my personal blog.</p>
-            </div>
-        </div>
+        <h3>Wiring your Arduino</h3>
+        <h3>Instructions</h3>
+        <p>
+            This control panel allows you to change the color of a RGB LED plugged on an Arduino. It uses
+            <a href="#">Johnny Five</a> framework and <a href="#">Socket.io</a>.
+        </p>
+        <p>First step is to plug the RGB LED on your Arduino. Then, simply launch the server:</p>
+        <pre><code>node server.js</code></pre>
+        <p>Finally, change the emitted light color with the following color picker.</p>
+        <p>Source code is available on GitHub, and a full tutorial on my personal blog.</p>
+
+        <h3>Choose a color</h3>
+        <canvas id="hue-picker" width="940" height="80"></canvas>
+        <p>
+            Current selected color:
+            <input type="text" value="#ff0000" id="chosenColor" />
+        </p>
     </div>
     <script src="http://localhost:8080/socket.io/socket.io.js"></script>
     <script src="/bower_components/jquery/jquery.min.js"></script>
-    <script src="/bower_components/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
     <script>
         var socket = io.connect('//:8080');
 
-        var colorPicker = $('#color-picker').colorpicker({
-            inline: true,
-            container: $('#color-picker'),
-            format: "rgb"
-        }).show();
+        // Display hue background
+        var context = document.getElementById("hue-picker").getContext('2d');
+        context.fillStyle = getRainbowGradient(context);
+        context.fillRect(0, 0, 940, 80);
 
-        colorPicker.on("changeColor", function(e) {
-           socket.emit("changeColor", { color: e.color.toHex() });
+        // Choose color on click
+        $("#hue-picker").click(function(e) {
+            var x = e.clientX - $(this).position().left;
+            var y = e.clientY - $(this).position().top;
+
+            var color = convertImageDataToHexadecimalCode(context.getImageData(x, y, 1, 1).data);
+            $('#chosenColor').val(color);
+            socket.emit("changeColor", { color: color });
         });
+
+        function convertImageDataToHexadecimalCode(imageData) {
+            var hexadecimalColor = "#";
+            for (var i = 0 ; i < 3 ; i++) {
+                var hexadecimalPart = imageData[i].toString(16);
+                if (hexadecimalPart.length == 1) {
+                    hexadecimalPart = "0" + hexadecimalPart;
+                }
+
+                hexadecimalColor += hexadecimalPart;
+            }
+
+            return hexadecimalColor;
+        }
+
+        function getRainbowGradient(context) {
+            var rainbowColors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
+
+            var gradient = context.createLinearGradient(0, 0, 940, 0);
+            for (var i = 0, c = rainbowColors.length ; i < c ; i++) {
+                gradient.addColorStop(i/c, rainbowColors[i]);
+            }
+
+            return gradient;
+        }
     </script>
 </body>
 </html>
