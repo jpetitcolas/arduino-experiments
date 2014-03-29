@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <title>Arduino - RGB LED control panel</title>
     <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="/bower_components/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css" />
-    <style>
-        #color-picker { height: 300px; width: 100%; border: 1px solid silver; }
-    </style>
+    <link href="style.css" rel="stylesheet" />
 </head>
 <body>
     <div class="container">
@@ -24,7 +21,9 @@
         <p>Source code is available on GitHub, and a full tutorial on my personal blog.</p>
 
         <h3>Choose a color</h3>
-        <canvas id="hue-picker" width="940" height="80"></canvas>
+
+        <div id="color-picker"></div>
+
         <p>
             Current selected color:
             <input type="text" value="#ff0000" id="chosenColor" />
@@ -32,48 +31,22 @@
     </div>
     <script src="http://localhost:8080/socket.io/socket.io.js"></script>
     <script src="/bower_components/jquery/jquery.min.js"></script>
+    <script src="/bower_components/jqueryui/ui/jquery-ui.js"></script>
+    <script src="/bower_components/jqueryui/ui/jquery.ui.draggable.js"></script>
+    <script src="/js/hue-picker.js"></script>
     <script>
         var socket = io.connect('//:8080');
 
-        // Display hue background
-        var context = document.getElementById("hue-picker").getContext('2d');
-        context.fillStyle = getRainbowGradient(context);
-        context.fillRect(0, 0, 940, 80);
-
-        // Choose color on click
-        $("#hue-picker").click(function(e) {
-            var x = e.clientX - $(this).position().left;
-            var y = e.clientY - $(this).position().top;
-
-            var color = convertImageDataToHexadecimalCode(context.getImageData(x, y, 1, 1).data);
-            $('#chosenColor').val(color);
-            socket.emit("changeColor", { color: color });
+        var huePicker = new HuePicker($("#color-picker"), {
+            width: 940,
+            height: 80
         });
 
-        function convertImageDataToHexadecimalCode(imageData) {
-            var hexadecimalColor = "#";
-            for (var i = 0 ; i < 3 ; i++) {
-                var hexadecimalPart = imageData[i].toString(16);
-                if (hexadecimalPart.length == 1) {
-                    hexadecimalPart = "0" + hexadecimalPart;
-                }
-
-                hexadecimalColor += hexadecimalPart;
-            }
-
-            return hexadecimalColor;
-        }
-
-        function getRainbowGradient(context) {
-            var rainbowColors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
-
-            var gradient = context.createLinearGradient(0, 0, 940, 0);
-            for (var i = 0, c = rainbowColors.length ; i < c ; i++) {
-                gradient.addColorStop(i/c, rainbowColors[i]);
-            }
-
-            return gradient;
-        }
+        $(huePicker).on("changeColor", function(e, color) {
+            $("#chosenColor").val(color);
+            $("#marker circle").attr("fill", color);
+            socket.emit("changeColor", { color: color });
+        });
     </script>
 </body>
 </html>
