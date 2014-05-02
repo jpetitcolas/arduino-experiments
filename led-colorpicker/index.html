@@ -9,33 +9,26 @@
 <body>
     <div class="container">
         <h1>RGB LED control panel</h1>
-        <h3>Wiring your Arduino</h3>
-        <h3>Instructions</h3>
         <p>
             This control panel allows you to change the color of a RGB LED plugged on an Arduino. It uses
             <a href="#">Johnny Five</a> framework and <a href="#">Socket.io</a>.
         </p>
-        <p>First step is to plug the RGB LED on your Arduino. Then, simply launch the server:</p>
-        <pre><code>node server.js</code></pre>
-        <p>Finally, change the emitted light color with the following color picker.</p>
         <p>Source code is available on GitHub, and a full tutorial on my personal blog.</p>
-
-        <h3>Choose a color</h3>
+        <p>Plug your Arduino, launch the server (<code>sudo node server.js</code>) and move the cursor:</p>
 
         <div id="color-picker"></div>
-
         <p>
             Current selected color:
             <input type="text" value="#ff0000" id="chosenColor" />
         </p>
     </div>
-    <script src="http://localhost:8080/socket.io/socket.io.js"></script>
-    <script src="/bower_components/jquery/jquery.min.js"></script>
+    <script src="http://192.168.56.101:8080/socket.io/socket.io.js"></script>
+    <script src="/bower_components/jquery/dist/jquery.min.js"></script>
     <script src="/bower_components/jqueryui/ui/jquery-ui.js"></script>
     <script src="/bower_components/jqueryui/ui/jquery.ui.draggable.js"></script>
     <script src="/js/hue-picker.js"></script>
     <script>
-        var socket = io.connect('//:8080');
+        var socket = io.connect('http://192.168.56.101:8080');
 
         var huePicker = new HuePicker($("#color-picker"), {
             width: 940,
